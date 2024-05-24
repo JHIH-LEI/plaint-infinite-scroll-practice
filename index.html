@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>intersection observer</title>
+    <style>
+      .item {
+        border: 1px solid black;
+        padding: 50px;
+        margin-bottom: 500px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="item">1</div>
+      <div class="item">2</div>
+      <div class="item">3</div>
+      <div class="item">4</div>
+      <div class="item">5</div>
+    </div>
+  </body>
+  <script>
+    const itemContainer = document.querySelector(".container");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const intersecting = entry.isIntersecting;
+          entry.target.style.background = intersecting ? "orange" : "blue";
+        });
+      },
+      { threshold: 1 }
+    );
+
+    const elements = document.querySelectorAll(".item");
+    elements.forEach((e) => observer.observe(e));
+
+    // lazing loading
+
+    const lastItemObserver = new IntersectionObserver((entries, o) => {
+      const lastItem = entries[0];
+      if (!lastItem.isIntersecting) return;
+      loadNewItems();
+      o.unobserve(lastItem.target);
+      o.observe(document.querySelector(".item:last-child"));
+    });
+
+    lastItemObserver.observe(document.querySelector(".item:last-child"));
+
+    function loadNewItems() {
+      for (let i = 0; i < 10; i++) {
+        const item = document.createElement("div");
+        item.textContent = "new";
+        item.classList.add("item");
+        observer.observe(item);
+        itemContainer.append(item);
+      }
+    }
+  </script>
+</html>
